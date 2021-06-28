@@ -12,6 +12,9 @@ public class GameRoot : MonoBehaviour
     private void Awake()
     {
         NetSvc.One.Init();
+
+
+
     }
 
     private void Update()

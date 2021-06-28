@@ -16,7 +16,10 @@ public class NetSvc : DoSingleMonoByGameRoot<NetSvc>
         ioNet.StartAsClient(SeverSetting.Ip, SeverSetting.Port);
 
     }
-   
+    public void ReStartConnet()
+    {
+        ioNet.StartAsClient(SeverSetting.Ip, SeverSetting.Port);
+    }
 
     private void Update()
     {

@@ -5,6 +5,7 @@ using System;
 using UnityEngine.UI;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.U2D;
 
 public class AddResInfo
 {
@@ -176,7 +177,7 @@ public class AResMgr : DoSingle<AResMgr>
     }
     public void GetUI(string prefabsName, Action<GameObject> evt, Action fail = null, bool isAutoUnload = false)
     {
-        string addres = "Common/UI/" + prefabsName;
+        string addres = "Common/Ui/" + prefabsName;
         if (MyAddResDic.ContainsKey("Common") == false)
         {
             AddResInfo add = new AddResInfo();
@@ -192,6 +193,23 @@ public class AResMgr : DoSingle<AResMgr>
             add.GetPrefab(addres, evt, fail, isAutoUnload);
         }
     }
-   
-   
+   public void GetAtlas(string prefabsName, Action<SpriteAtlas> evt, Action fail = null, bool isAutoUnload = false)
+    {
+        string addres = "Common/Atlas/" + prefabsName;
+        if (MyAddResDic.ContainsKey("Common") == false)
+        {
+            AddResInfo add = new AddResInfo();
+            add.lvName = "Common";
+            MyAddResDic.Add(add.lvName, add);
+
+            add.LoadAsset<SpriteAtlas>(addres, evt, fail, isAutoUnload);
+        }
+        else
+        {
+            AddResInfo add = MyAddResDic["Common"];
+
+            add.LoadAsset<SpriteAtlas>(addres, evt, fail, isAutoUnload);
+        }
+    }
+
 }
