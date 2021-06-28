@@ -56,7 +56,7 @@ public class AddResInfo
         }
         else
         {
-            Debug.Log("2222222222222222");
+            
             var handle = Addressables.LoadAssetAsync<T>(address);
             handle.Completed += (result) =>
             {
@@ -86,7 +86,7 @@ public class AddResInfo
     {
        
         
-            Debug.Log("2222222222222222");
+            
             var handle = Addressables.InstantiateAsync(address);
             handle.Completed += (result) =>
             {

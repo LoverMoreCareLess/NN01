@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 using UnityEngine.AI;
+using UnityEngine.AddressableAssets;
 
 public static class ExpandMonoMore
 {
@@ -431,8 +432,16 @@ public static class ExpandMonoMore
 
         return null;
     }
+    public static void AARelase(this UnityEngine.GameObject o)
+    {
+        Addressables.ReleaseInstance(o);
+       
+    }
+    public static void AARelase<T>(this T o) where T : UnityEngine.Object
+    {
 
-
+        Addressables.Release<T>(o);
+    }
 }
 
 public enum LogColor{
