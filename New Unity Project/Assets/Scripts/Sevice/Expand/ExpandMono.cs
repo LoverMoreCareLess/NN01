@@ -12,9 +12,22 @@ using System.Threading;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Reflection;
 
 public static class ExpandMono
 {
+    public static void AddComByName<T>(this GameObject go, string codeName) where T : UnityEngine.MonoBehaviour
+    {
+        T m = Assembly.GetExecutingAssembly().CreateInstance(codeName) as T;
+
+        go.AddComponent<T>();
+
+
+
+    }
+
+
+
     public static T Component<T>(this Transform transform, Action<T> act = null) where T : Component
     {
         T t = transform.gameObject.GetOrAddComponent<T>();
