@@ -11,11 +11,15 @@ public class GameRoot : MonoBehaviour
 
     private void Awake()
     {
+        DontDestroyOnLoad(this.gameObject);
+
         NetSvc.One.Init();
 
         AudMgr.One.Init();
 
-        AResMgr.One.GetUI("Image",null);
+        UIMgr.One.Init();
+
+        
 
     }
 
@@ -25,6 +29,20 @@ public class GameRoot : MonoBehaviour
         {
 
             ResReq("22222221", "2222");
+
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+
+            UIMgr.One.ShowUI(UIID.MainForm,OpenUIAct.Bigger);
+
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+
+            UIMgr.One.CloseUI(UIID.MainForm);
 
         }
     }

@@ -2,10 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-
+using System;
 public enum OpenUIAct
 {
+    //打开
     None,
+    Bigger,
+
+
+
+
+
+
+
+
+
+
+    //关闭
+    Smaller=11,
+}
+
+public enum UIType
+{
+    None,
+    Tip,
+    Mid,
+    Load,
 }
 public class UIMgr : DoSingle<UIMgr>
 {
@@ -21,13 +43,19 @@ public class UIMgr : DoSingle<UIMgr>
     private Transform mid;
     private Transform loading;
     private Transform tip;
+
     public void Init()
     {
         UIpanel = new Dictionary<string, GameObject>();
+        Transform canvas = GameObject.Find("Canvas").transform;
+        resident = canvas.GetOutChild("Resident");
+        mid = canvas.GetOutChild("Mid");
+        loading = canvas.GetOutChild("Loading");
+        tip = canvas.GetOutChild("Tip");
 
     }
 
-    public UIBase ShowUI(string name, OpenUIAct open = OpenUIAct.None)
+    public void ShowUI(string name, OpenUIAct open = OpenUIAct.None)
     {
         UIBase ui = null;
         if (!UIpanel.ContainsKey(name))
@@ -36,20 +64,18 @@ public class UIMgr : DoSingle<UIMgr>
             AResMgr.One.GetUI(name, (g) =>
             {
                 go = g;
+                go.name = name;
                 if (go != null)
                 {
-                    go.AddUIInstall<UIBase>();
-                }
-                UIpanel.Add(go.name, go);
+                    go.AddUIInstall();
+                    UIpanel.Add(go.name, go);
 
-                ui = UIpanel[name].GetComponent<UIBase>();
-                ui.transform.SetParent(mid, false);
-                CanvasGroup cg = ui.transform.GetComponent<CanvasGroup>();
-                if (cg != null)
-                {
-                    cg.alpha = 1;
+                    ui = UIpanel[name].GetComponent<UIBase>();
+                    ui.transform.SetParent(mid, false);
+                    ui.open = open;
+                    LoadingComplete(ui, name, open);
                 }
-
+                
             }, () =>
             {
 
@@ -58,49 +84,99 @@ public class UIMgr : DoSingle<UIMgr>
             });
 
         }
-        ui.open = open;
-        LoadingComplete(ui, name, open);
-        return ui;
+        else
+        {
+            ui = UIpanel[name].GetComponent<UIBase>();
+            ui.transform.SetParent(mid, false);
+            ui.open = open;
+            LoadingComplete(ui, name, open);
+        }
+       
     }
 
 
-    public void CloseUI(string name,bool isDestroy = true)
+    public void ShowUI(string name, UIType type, OpenUIAct open = OpenUIAct.None)
+    {
+        UIBase ui = null;
+        if (!UIpanel.ContainsKey(name))
+        {
+            GameObject go = null;
+            AResMgr.One.GetUI(name, (g) =>
+            {
+                go = g;
+                go.name = name;
+                if (go != null)
+                {
+                    go.AddUIInstall();
+                }
+                UIpanel.Add(go.name, go);
+
+                ui = UIpanel[name].GetComponent<UIBase>();
+                ui.transform.SetParent(GetParent(type), false);
+                ui.open = open;
+                LoadingComplete(ui, name, open);
+            }, () =>
+            {
+
+                Debug.Log("为空");
+
+            });
+
+        }
+        else
+        {
+            ui = UIpanel[name].GetComponent<UIBase>();
+            ui.transform.SetParent(GetParent(type), false);
+            ui.open = open;
+            LoadingComplete(ui, name, open);
+        }
+        
+    }
+
+    public void CloseUI(string name, bool isDestroy = true)
     {
         UIBase ui = UIpanel[name].GetComponent<UIBase>();
         ui.OnHide();
-        ui.transform.GetComponent<CanvasGroup>().alpha=0;
-        CloseUIWay(ui.gameObject, ui.open);
-        if (isDestroy)
-        {
-            UIpanel[name].BreakRelease();
-        }
+        CloseUIWay(ui.gameObject, ui.open, () => {
 
+            ui.transform.GetComponent<CanvasGroup>().alpha = 0;
+            ui.transform.SetParent(resident, false);
+            if (isDestroy)
+            {
+                UIpanel[name].BreakRelease();
+            }
+
+        });
     }
-    public void CloseUI(string name,OpenUIAct open, bool isDestroy = true)
+
+    public void CloseUI(string name, OpenUIAct open, bool isDestroy = true)
     {
         UIBase ui = UIpanel[name].GetComponent<UIBase>();
         ui.OnHide();
-        ui.transform.GetComponent<CanvasGroup>().alpha = 0;
-        CloseUIWay(ui.gameObject, open);
-        if (isDestroy)
-        {
-            UIpanel[name].BreakRelease();
-        }
 
-    }
+        CloseUIWay(ui.gameObject, open, () => {
 
-
-
-    /// <summary>
-    /// 加载UI界面
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    private void LoadUIPrefab(string name)
-    {
+            ui.transform.GetComponent<CanvasGroup>().alpha = 0;
+            ui.transform.SetParent(resident, false);
+            if (isDestroy)
+            {
+                UIpanel[name].BreakRelease();
+            }
+        });
 
 
     }
+
+
+
+
+
+
+
+
+
+
+
 
 
     /// <summary>
@@ -112,7 +188,6 @@ public class UIMgr : DoSingle<UIMgr>
     private void LoadingComplete(UIBase ui, string name, OpenUIAct open = OpenUIAct.None)
     {
         ui = UIpanel[name].GetComponent<UIBase>();
-        ui.transform.SetParent(mid, false);
         CanvasGroup cg = ui.transform.GetComponent<CanvasGroup>();
         if (cg != null)
         {
@@ -136,6 +211,15 @@ public class UIMgr : DoSingle<UIMgr>
                     ui.OnShowEnd();
                 }
                 break;
+            case OpenUIAct.Bigger:
+                {
+                    ui.transform.DOScale(Vector3.zero, 0.3f).From().OnComplete(() => {
+
+                        ui.OnShowEnd();
+
+                    });
+                }
+                break;
             default:
                 break;
         }
@@ -146,18 +230,23 @@ public class UIMgr : DoSingle<UIMgr>
     /// </summary>
     /// <param name="ui"></param>
     /// <param name="way"></param>
-    private void CloseUIWay(GameObject ui, OpenUIAct way)
+    private void CloseUIWay(GameObject ui, OpenUIAct way, Action endAct)
     {
         switch (way)
         {
             case OpenUIAct.None:
                 {
 
+                }
+                break; case OpenUIAct.Bigger:
+                {
+                    ui.transform.DOScale(Vector3.zero, 0.3f).OnComplete(()=> {
 
-
-
-
-
+                        if(endAct!=null)
+                        {
+                            endAct();
+                        }
+                    });
                 }
                 break;
             default:
@@ -165,6 +254,29 @@ public class UIMgr : DoSingle<UIMgr>
         }
     }
 
+
+    private Transform GetParent(UIType type)
+    {
+        Transform parentUI = null;
+        switch (type)
+        {
+            case UIType.None:
+                break;
+            case UIType.Tip:
+                parentUI = tip;
+                break;
+            case UIType.Mid:
+                parentUI = mid;
+                break;
+            case UIType.Load:
+                parentUI = loading;
+                break;
+            default:
+                break;
+        }
+        return parentUI;
+
+    }
 
     public T GetUIPanel<T>(string name)
     {

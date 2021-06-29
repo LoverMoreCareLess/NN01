@@ -6,7 +6,9 @@ using UnityEngine;
 
 public  class UIID
 {
-public const string Image = "Image";
+public const string LoadingForm = "LoadingForm";
+
+public const string MainForm = "MainForm";
 
 
 

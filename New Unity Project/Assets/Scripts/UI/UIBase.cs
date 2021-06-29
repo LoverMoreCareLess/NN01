@@ -9,7 +9,16 @@ public abstract class UIBase : MonoBehaviour
 {
     public OpenUIAct open
     {
-        get;set;
+        get
+        {
+            return open += 10;
+
+        }
+        set
+        {
+
+
+        }
     }
 
     protected Action showEndact;
@@ -34,7 +43,10 @@ public abstract class UIBase : MonoBehaviour
 
     public void OnShowEnd()
     {
-        showEndact();
+        if(showEndact!=null)
+        {
+            showEndact();
+        }
     }
 
     public virtual void OnHide(params object[] obj)

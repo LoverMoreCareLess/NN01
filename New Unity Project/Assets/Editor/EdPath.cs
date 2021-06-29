@@ -18,7 +18,7 @@ public static class EdPath
 
     public static string StreamAssetPath = Application.streamingAssetsPath;
 
-    public static string ABNameClassOutPath = UnityAssetPath + "/Scripts/ABNameClass/";
+    public static string ABNameClassOutPath = UnityAssetPath + "/Scripts/UI/";
 
 
     public static string ABResPath = UnityAssetPath + "/MyAddResable/";

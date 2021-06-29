@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -6,16 +7,17 @@ using UnityEngine;
 public static  class UIMono
 {
 
-    public static GameObject AddUIInstall<T>(this GameObject ga) where T : UnityEngine.MonoBehaviour
+    public static GameObject AddUIInstall(this GameObject ga)
     {
         if (ga.GetComponent<CanvasGroup>() == null)
         {
             ga.AddComponent<CanvasGroup>();
         }
-
-        ga.AddComByName<T>(ga.name);
+        Type type = Type.GetType(ga.name);
+        ga.AddComponent(type);
 
         return ga;
+
     }
 
     public static void AddComByName<T>(this GameObject go, string codeName) where T : UnityEngine.MonoBehaviour
