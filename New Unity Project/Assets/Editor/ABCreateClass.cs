@@ -13,7 +13,7 @@ public class ABCreateClass : Editor
 
     public static void CreateABClassWork()
     {
-
+        ClearLst();
         CreateUIClass(0);
         CreateUIClass(1);
 
@@ -22,7 +22,7 @@ public class ABCreateClass : Editor
         WriteClass(prefabsStr, "PrefabID");
         WriteClass(atlasStr, "AtlasID");
         WriteClass(sound, "SoundID");
-
+        Debug.Log("生成完毕");
     }
 
 
@@ -31,13 +31,19 @@ public class ABCreateClass : Editor
 
 
 
-
+    private static void ClearLst()
+    {
+        uiStr.Clear();
+        prefabsStr.Clear();
+        atlasStr.Clear();
+        sound.Clear();
+    }
 
 
 
     public static void CreateUIClass(int id)
     {
-        uiStr.Clear();
+       
         string strNeedSetLabelRoot = string.Empty;
         strNeedSetLabelRoot = EdPath.GetLoaclOrRemotedPath(id);
         DirectoryInfo[] dirScenesDIRArray = null;
@@ -65,9 +71,10 @@ public class ABCreateClass : Editor
 
 
         StringBuilder fieldDefs = new StringBuilder();
+        Debug.Log(lst.Count);
         for (int i = 0; i < lst.Count; i++)
         {
-
+            
             string s = string.Format("public const string {0} = ", lst[i]);
 
             string fieldName = string.Format("\"{0}\";", lst[i]);
@@ -96,6 +103,7 @@ public class ABCreateClass : Editor
         //}
         if (lst.Count <= 0)
         {
+            Debug.Log("1111"+ ClassName);
                        return;
         }
 
@@ -147,6 +155,7 @@ public class ABCreateClass : Editor
                     //Debug.Log("@@@strABFileNameArea:  "+ strABFileNameArea);
                     if (strABFileNameArea.Contains("/"))
                     {
+                        
                         string[] tempStrArray = strABFileNameArea.Split('/');
                         //AB包名称正式形成
                         //Debug.Log("###tempStrArray[0]:  " + tempStrArray[0]);
@@ -155,6 +164,7 @@ public class ABCreateClass : Editor
                         Debug.Log(tempStrArray[0]);
                         if (tempStrArray[0] == "Ui")
                         {
+                            Debug.Log(tempStrArray[0]);
                             uiStr.Add(fileInfo.Name.Split('.')[0]);
 
                         }

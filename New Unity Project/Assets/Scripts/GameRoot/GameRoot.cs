@@ -13,7 +13,9 @@ public class GameRoot : MonoBehaviour
     {
         NetSvc.One.Init();
 
+        AudMgr.One.Init();
 
+        AResMgr.One.GetUI("Image",null);
 
     }
 

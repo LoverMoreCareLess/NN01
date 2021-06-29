@@ -211,5 +211,24 @@ public class AResMgr : DoSingle<AResMgr>
             add.LoadAsset<SpriteAtlas>(addres, evt, fail, isAutoUnload);
         }
     }
+    public void GetSound( string prefabsName, Action<AudioClip> evt, Action fail = null, bool isAutoUnload = false)
+    {
+        string addres = "Common/Sound/" + prefabsName;
+        if (MyAddResDic.ContainsKey("Common") == false)
+        {
+            AddResInfo add = new AddResInfo();
+            add.lvName = "Common";
+            MyAddResDic.Add(add.lvName, add);
+
+            add.LoadAsset<AudioClip>(addres, evt, fail, isAutoUnload);
+        }
+        else
+        {
+            AddResInfo add = MyAddResDic["Common"];
+
+            add.LoadAsset<AudioClip>(addres, evt, fail, isAutoUnload);
+        }
+    }
+
 
 }

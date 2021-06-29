@@ -16,7 +16,7 @@ using System.Reflection;
 
 public static class ExpandMono
 {
-    public static void AddComByName<T>(this GameObject go, string codeName) where T : UnityEngine.MonoBehaviour
+    public static void AddComByCodeName<T>(this GameObject go, string codeName) where T : UnityEngine.MonoBehaviour
     {
         T m = Assembly.GetExecutingAssembly().CreateInstance(codeName) as T;
 
