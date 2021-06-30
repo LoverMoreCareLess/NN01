@@ -29,4 +29,30 @@ public static  class UIMono
 
 
     }
+
+    /// <summary>
+    /// 转换时间
+    /// </summary>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    public static string TimeFormat(long time)
+    {
+        float h = Mathf.FloorToInt(time / 3600f);
+        float m = Mathf.FloorToInt(time / 60f - h * 60f);
+        float s = Mathf.FloorToInt(time - m * 60f - h * 3600f);
+        return h.ToString("00") + ":" + m.ToString("00") + ":" + s.ToString("00");
+    }
+
+    /// <summary>
+    /// 转换时间
+    /// </summary>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    public static string TimeFormat(this double time)
+    {
+        float h =Mathf.FloorToInt((float)(time / 3600f));
+        float m = Mathf.FloorToInt((float)(time / 60f - h * 60f));
+        float s = Mathf.FloorToInt((float)(time - m * 60f - h * 3600f));
+        return h.ToString("00") + ":" + m.ToString("00") + ":" + s.ToString("00");
+    }
 }

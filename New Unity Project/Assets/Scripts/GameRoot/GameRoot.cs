@@ -34,7 +34,6 @@ public class GameRoot : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-
             UIMgr.One.ShowUI(UIID.MainForm,OpenUIAct.Bigger);
 
         }
@@ -42,7 +41,7 @@ public class GameRoot : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
 
-            UIMgr.One.CloseUI(UIID.MainForm);
+            UIMgr.One.CloseUI(UIID.MainForm,false);
 
         }
     }

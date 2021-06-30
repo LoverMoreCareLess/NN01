@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using System;
+using UnityEngine.U2D;
+using UnityEngine.UI;
+
 public enum OpenUIAct
 {
     //打开
@@ -55,7 +58,7 @@ public class UIMgr : DoSingle<UIMgr>
 
     }
 
-    public void ShowUI(string name, OpenUIAct open = OpenUIAct.None)
+    public void ShowUI(string name, OpenUIAct open = OpenUIAct.None,params object[] obj)
     {
         UIBase ui = null;
         if (!UIpanel.ContainsKey(name))
@@ -72,11 +75,14 @@ public class UIMgr : DoSingle<UIMgr>
 
                     ui = UIpanel[name].GetComponent<UIBase>();
                     ui.transform.SetParent(mid, false);
-                    ui.open = open;
+                    ui.Open = open;
+                    ui.OnInit();
+                    ui.OnShow(obj);
                     LoadingComplete(ui, name, open);
                 }
                 
-            }, () =>
+            }, 
+            () =>
             {
 
                 Debug.Log("为空");
@@ -88,14 +94,15 @@ public class UIMgr : DoSingle<UIMgr>
         {
             ui = UIpanel[name].GetComponent<UIBase>();
             ui.transform.SetParent(mid, false);
-            ui.open = open;
+            ui.Open = open;
+            ui.OnShow(obj);
             LoadingComplete(ui, name, open);
         }
        
     }
 
 
-    public void ShowUI(string name, UIType type, OpenUIAct open = OpenUIAct.None)
+    public void ShowUI(string name, UIType type, OpenUIAct open = OpenUIAct.None, params object[] obj)
     {
         UIBase ui = null;
         if (!UIpanel.ContainsKey(name))
@@ -113,7 +120,9 @@ public class UIMgr : DoSingle<UIMgr>
 
                 ui = UIpanel[name].GetComponent<UIBase>();
                 ui.transform.SetParent(GetParent(type), false);
-                ui.open = open;
+                ui.Open = open;
+                ui.OnInit();
+                ui.OnShow(obj);
                 LoadingComplete(ui, name, open);
             }, () =>
             {
@@ -127,7 +136,8 @@ public class UIMgr : DoSingle<UIMgr>
         {
             ui = UIpanel[name].GetComponent<UIBase>();
             ui.transform.SetParent(GetParent(type), false);
-            ui.open = open;
+            ui.Open = open;
+            ui.OnShow(obj);
             LoadingComplete(ui, name, open);
         }
         
@@ -135,42 +145,108 @@ public class UIMgr : DoSingle<UIMgr>
 
     public void CloseUI(string name, bool isDestroy = true)
     {
-        UIBase ui = UIpanel[name].GetComponent<UIBase>();
-        ui.OnHide();
-        CloseUIWay(ui.gameObject, ui.open, () => {
+        if(UIpanel.ContainsKey(name))
+        {
+            UIBase ui = UIpanel[name].GetComponent<UIBase>();
+            ui.OnHide();
+            CloseUIWay(ui.gameObject, ui.Open, () => {
 
-            ui.transform.GetComponent<CanvasGroup>().alpha = 0;
-            ui.transform.SetParent(resident, false);
-            if (isDestroy)
-            {
-                UIpanel[name].BreakRelease();
-            }
+                ui.transform.GetComponent<CanvasGroup>().alpha = 0;
+                ui.transform.SetParent(resident, false);
+                ui.RestDataRect();
+                if (isDestroy)
+                {
+                    GameObject g = UIpanel[name];
+                    UIpanel.Remove(name);
+                    g.BreakRelease();
+                }
 
-        });
+            });
+        }
+        else
+        {
+            Debug.Log("不存在");
+        }
+        
     }
 
     public void CloseUI(string name, OpenUIAct open, bool isDestroy = true)
     {
-        UIBase ui = UIpanel[name].GetComponent<UIBase>();
-        ui.OnHide();
 
-        CloseUIWay(ui.gameObject, open, () => {
+        if(UIpanel.ContainsKey(name))
+        {
+            UIBase ui = UIpanel[name].GetComponent<UIBase>();
+            ui.OnHide();
 
-            ui.transform.GetComponent<CanvasGroup>().alpha = 0;
-            ui.transform.SetParent(resident, false);
-            if (isDestroy)
-            {
-                UIpanel[name].BreakRelease();
-            }
-        });
+            CloseUIWay(ui.gameObject, open, () => {
+
+                ui.transform.GetComponent<CanvasGroup>().alpha = 0;
+                ui.transform.SetParent(resident, false);
+                ui.RestDataRect();
+                if (isDestroy)
+                {
+                    GameObject g = UIpanel[name];
+                    UIpanel.Remove(name);
+                    g.BreakRelease();
+                }
+            });
+        }
+        else
+        {
+            Debug.Log("不存在");
+        }
 
 
     }
 
+    public void CloseUI(GameObject go, OpenUIAct open, bool isDestroy = true)
+    {
+        if (UIpanel.ContainsValue(go))
+        {
 
+            UIBase ui = go.GetComponent<UIBase>();
+            ui.OnHide();
 
+            CloseUIWay(ui.gameObject, open, () => {
 
+                ui.transform.GetComponent<CanvasGroup>().alpha = 0;
+                ui.transform.SetParent(resident, false);
+                ui.RestDataRect();
+                if (isDestroy)
+                {
+                    string k = string.Empty;
+                    foreach (var item in UIpanel)
+                    {
+                        if(item.Value==go)
+                        {
+                            k = item.Key;
+                            break;
+                        }
+                    }
+                    UIpanel.Remove(k);
+                    go.BreakRelease();
+                }
+            });
+        }
+        else
+        {
+            Debug.Log("不存在");
+        }
+    }
 
+    /// <summary>
+    /// 销毁所有界面
+    /// </summary>
+    public void DestroyAllUI()
+    {
+        foreach (var item in UIpanel)
+        {
+            UIBase u = item.Value.GetComponent<UIBase>();
+            u.OnHide();
+            u.gameObject.BreakRelease();
+        }
+        UIpanel.Clear();
+    }
 
 
 
@@ -213,8 +289,8 @@ public class UIMgr : DoSingle<UIMgr>
                 break;
             case OpenUIAct.Bigger:
                 {
-                    ui.transform.DOScale(Vector3.zero, 0.3f).From().OnComplete(() => {
-
+                    ui.transform.DOScale(Vector3.zero, 0.2f).From().OnComplete(() =>
+                    {
                         ui.OnShowEnd();
 
                     });
@@ -238,11 +314,12 @@ public class UIMgr : DoSingle<UIMgr>
                 {
 
                 }
-                break; case OpenUIAct.Bigger:
+                break; case OpenUIAct.Smaller:
                 {
-                    ui.transform.DOScale(Vector3.zero, 0.3f).OnComplete(()=> {
+                    ui.transform.DOScale(Vector3.zero, 0.2f).OnComplete(() =>
+                    {
 
-                        if(endAct!=null)
+                        if (endAct != null)
                         {
                             endAct();
                         }
@@ -287,4 +364,35 @@ public class UIMgr : DoSingle<UIMgr>
         }
         return default;
     }
+
+    //图集
+    Dictionary<string, SpriteAtlas> spDic = new Dictionary<string, SpriteAtlas>();
+
+    /// <summary>
+    /// 获取图集图片
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public void LoadSprite(string path,string name,Image img)
+    {
+        if (spDic.ContainsKey(path))
+        {
+            img.sprite= spDic[path].GetSprite(name);
+        }
+        else
+        {
+
+            AResMgr.One.GetAtlas(name, (sp) =>
+            {
+                spDic.Add(path, sp);
+                img.sprite = sp.GetSprite(name);
+            }, 
+            () =>
+            {
+                Debug.Log("加载失败");
+            });
+        }
+    }
+
 }
